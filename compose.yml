@@ -1,0 +1,45 @@
+name: rp-pratica
+
+services:
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_NAME: ${DB_NAME}
+      POSTGRES_PASS: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - imsi-rp
+  backend:
+    image: backend-rp:1.0
+    build:
+      context: .
+      target: backend
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_HOST: database
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_PORT: ${DB_PORT}
+    depends_on:
+      - database
+    ports:
+      - 3000:3000
+    networks:
+      - imsi-rp
+  frontend:
+    image: frontend-rp:1.0
+    build:
+      context: .
+      target: frontend
+    ports:
+      - 5757:5757
+    networks:
+      - imsi-rp
+
+volumes:
+  postgres-data:
+
+networks:
+  imsi-rp:
